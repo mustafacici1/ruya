@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rüya Yorumlama - Modern Karanlık Arayüz</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    /* Genel reset ve font ayarları */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Poppins', sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: linear-gradient(135deg, #121236, #2a2a4a, #121236);
+      color: #f0f0f0;
+      overflow: hidden;
+    }
+    
+    /* Üst kısım (header) */
+    header {
+      background: rgba(0, 0, 0, 0.4);
+      padding: 18px 20px;
+      text-align: center;
+      font-size: 1.4em;
+      font-weight: 500;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 2px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Ana sohbet konteyneri */
+    .chat-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      max-width: 900px;
+      width: 92%;
+      margin: 20px auto;
+      background: rgba(20, 20, 40, 0.75);
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    /* Sohbet mesajları alanı */
+    .chat-log {
+      flex: 1;
+      padding: 25px;
+      overflow-y: auto;
+      background: transparent;
+    }
+    
+    /* Mesaj baloncukları */
+    .message {
+      margin-bottom: 20px;
+      display: flex;
+      align-items: flex-start;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .message.user {
+      justify-content: flex-end;
+    }
+    
+    .message.assistant {
+      justify-content: flex-start;
+    }
+    
+    .bubble {
+      padding: 14px 18px;
+      border-radius: 18px;
+      max-width: 80%;
+      line-height: 1.5;
+      position: relative;
+      backdrop-filter: blur(5px);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .message.user .bubble {
+      background: linear-gradient(to right, rgba(80, 80, 160, 0.8), rgba(100, 100, 180, 0.8));
+      color: #ffffff;
+      border-bottom-right-radius: 5px;
+    }
+    
+    .message.assistant .bubble {
+      background: linear-gradient(to right, rgba(40, 40, 70, 0.8), rgba(60, 60, 100, 0.8));
+      color: #f0f0f0;
+      border-bottom-left-radius: 5px;
+    }
+    
+    /* Psikolog seçim alanı */
+    .psychologist-selector {
+      background: rgba(30, 30, 60, 0.85);
+      padding: 15px;
+      margin-bottom: 0;
+      display: none;
+      overflow-x: auto;
+      white-space: nowrap;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .psychologist-option {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      padding: 10px;
+      border-radius: 12px;
+      min-width: 100px;
+    }
+    
+    .psychologist-option:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+    
+    .psychologist-option.selected {
+      background: rgba(100, 100, 200, 0.2);
+      box-shadow: 0 0 0 2px rgba(100, 100, 200, 0.5);
+    }
+    
+    .psychologist-avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      overflow: hidden;
+      margin-bottom: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: #ddd;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .psychologist-name {
+      font-size: 0.8em;
+      text-align: center;
+      margin-bottom: 3px;
+    }
+    
+    .psychologist-specialty {
+      font-size: 0.65em;
+      color: #aaa;
+      text-align: center;
+    }
+    
+    /* Giriş alanı */
+    .input-area {
+      display: flex;
+      flex-direction: column;
+      padding: 15px;
+      background: rgba(15, 15, 35, 0.9);
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+    }
+    
+    .input-controls {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .input-area textarea {
+      flex: 1;
+      resize: none;
+      padding: 12px 15px;
+      font-size: 1em;
+      border: none;
+      border-radius: 8px;
+      background: rgba(40, 40, 80, 0.7);
+      color: #f0f0f0;
+      outline: none;
+      font-family: 'Poppins', sans-serif;
+      transition: background 0.2s ease;
+      min-height: 50px;
+      max-height: 120px;
+    }
+    
+    .input-area textarea:focus {
+      background: rgba(50, 50, 100, 0.7);
+    }
+    
+    .input-area button {
+      padding: 0 22px;
+      height: 50px;
+      background: linear-gradient(135deg, #6a5acd, #5a5ea6);
+      border: none;
+      border-radius: 8px;
+      font-size: 1em;
+      font-weight: 500;
+      color: #fff;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+      min-width: 100px;
+    }
+    
+    .input-area button:hover {
+      background: linear-gradient(135deg, #5a4abd, #484c8b);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+    
+    .input-area button:active {
+      transform: translateY(1px);
+    }
+    
+    .toggle-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      background: rgba(70, 70, 140, 0.4);
+      color: #ddd;
+      padding: 8px 15px;
+      margin-bottom: 10px;
+      border-radius: 6px;
+      font-size: 0.8em;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      align-self: flex-end;
+    }
+    
+    .toggle-btn:hover {
+      background: rgba(70, 70, 140, 0.6);
+    }
+    
+    /* Özel scrollbar stili */
+    .chat-log::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    .chat-log::-webkit-scrollbar-thumb {
+      background: rgba(100, 100, 180, 0.4);
+      border-radius: 3px;
+    }
+    
+    .chat-log::-webkit-scrollbar-thumb:hover {
+      background: rgba(100, 100, 180, 0.7);
+    }
+    
+    /* Animasyonlar */
+    @keyframes pulse {
+      0% { opacity: 0.7; }
+      50% { opacity: 1; }
+      100% { opacity: 0.7; }
+    }
+    
+    .typing-indicator {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+      animation: fadeIn 0.5s ease;
+    }
+    
+    .typing-bubble {
+      background: rgba(60, 60, 100, 0.5);
+      padding: 12px 16px;
+      border-radius: 18px;
+      border-bottom-left-radius: 5px;
+      display: flex;
+      align-items: center;
+    }
+    
+    .typing-dot {
+      width: 8px;
+      height: 8px;
+      background: #ddd;
+      border-radius: 50%;
+      margin: 0 2px;
+      opacity: 0.7;
+    }
+    
+    .typing-dot:nth-child(1) {
+      animation: pulse 1s infinite 0s;
+    }
+    
+    .typing-dot:nth-child(2) {
+      animation: pulse 1s infinite 0.2s;
+    }
+    
+    .typing-dot:nth-child(3) {
+      animation: pulse 1s infinite 0.4s;
+    }
+    
+    @media (max-width: 768px) {
+      .chat-container {
+        width: 95%;
+        margin: 10px auto;
+      }
+      
+      .bubble {
+        max-width: 85%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    Rüya Yorumlama - Modern Rüya Analizi
+  </header>
+  
+  <div class="chat-container">
+    <div id="chatLog" class="chat-log">
+      <!-- Hoş geldiniz mesajı -->
+      <div class="message assistant">
+        <div class="bubble">
+          Merhaba! Rüyanızı anlatın, seçtiğiniz psikologların yaklaşımıyla yorumlayalım. Psikologları seçmek için alttaki "Psikologları Seç" düğmesini kullanabilirsiniz.
+        </div>
+      </div>
+    </div>
+    
+    <div id="psychologistSelector" class="psychologist-selector">
+      <!-- Psikologlar burada listelenecek -->
+    </div>
+    
+    <div class="input-area">
+      <button id="togglePsychologists" class="toggle-btn">
+        Psikologları Seç
+      </button>
+      <div class="input-controls">
+        <textarea id="promptInput" placeholder="Rüyanızı buraya anlatın..."></textarea>
+        <button id="sendBtn">Gönder</button>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    const chatLog = document.getElementById('chatLog');
+    const promptInput = document.getElementById('promptInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const togglePsychologists = document.getElementById('togglePsychologists');
+    const psychologistSelector = document.getElementById('psychologistSelector');
+    
+    // Ünlü psikologlar listesi
+    const psychologists = [
+      { id: 'freud', name: 'Sigmund Freud', specialty: 'Psikanaliz', initial: 'F' },
+      { id: 'jung', name: 'Carl Jung', specialty: 'Analitik Psikoloji', initial: 'J' },
+      { id: 'adler', name: 'Alfred Adler', specialty: 'Bireysel Psikoloji', initial: 'A' },
+      { id: 'fromm', name: 'Erich Fromm', specialty: 'Sosyal Psikoloji', initial: 'Fr' },
+      { id: 'lacan', name: 'Jacques Lacan', specialty: 'Yapısalcı Psikanaliz', initial: 'L' }
+    ];
+    
+    // Seçilen psikologları takip etmek için
+    let selectedPsychologists = [];
+    
+    // Psikolog seçim alanını oluşturma
+    function initPsychologists() {
+      psychologists.forEach(psych => {
+        const psychOption = document.createElement('div');
+        psychOption.classList.add('psychologist-option');
+        psychOption.dataset.id = psych.id;
+        
+        psychOption.innerHTML = `
+          <div class="psychologist-avatar">${psych.initial}</div>
+          <div class="psychologist-name">${psych.name}</div>
+          <div class="psychologist-specialty">${psych.specialty}</div>
+        `;
+        
+        psychOption.addEventListener('click', () => {
+          togglePsychologistSelection(psych.id, psychOption);
+        });
+        
+        psychologistSelector.appendChild(psychOption);
+      });
+    }
+    
+    // Psikolog seçimini değiştirme
+    function togglePsychologistSelection(id, element) {
+      if (selectedPsychologists.includes(id)) {
+        // Seçimi kaldır
+        selectedPsychologists = selectedPsychologists.filter(psychId => psychId !== id);
+        element.classList.remove('selected');
+      } else {
+        // Seç
+        selectedPsychologists.push(id);
+        element.classList.add('selected');
+      }
+    }
+    
+    // Psikolog seçim panelini toggle yapma
+    togglePsychologists.addEventListener('click', () => {
+      if (psychologistSelector.style.display === 'block') {
+        psychologistSelector.style.display = 'none';
+        togglePsychologists.textContent = 'Psikologları Seç';
+      } else {
+        psychologistSelector.style.display = 'block';
+        togglePsychologists.textContent = 'Gizle';
+      }
+    });
+
+    // Mesaj ekleme fonksiyonu
+    function addMessage(text, sender = 'user') {
+      const messageEl = document.createElement('div');
+      messageEl.classList.add('message', sender);
+      
+      const bubbleEl = document.createElement('div');
+      bubbleEl.classList.add('bubble');
+      bubbleEl.textContent = text;
+      
+      messageEl.appendChild(bubbleEl);
+      chatLog.appendChild(messageEl);
+      chatLog.scrollTop = chatLog.scrollHeight;
+      
+      return messageEl;
+    }
+    
+    // Yazma göstergesi ekleme
+    function showTypingIndicator() {
+      const typingEl = document.createElement('div');
+      typingEl.classList.add('typing-indicator');
+      typingEl.innerHTML = `
+        <div class="typing-bubble">
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+        </div>
+      `;
+      chatLog.appendChild(typingEl);
+      chatLog.scrollTop = chatLog.scrollHeight;
+      return typingEl;
+    }
+
+// Simüle edilmiş asistan yanıtı (gerçek API entegrasyonu eklenebilir)
+function simulateAssistantResponse(userText) {
+  const typingIndicator = showTypingIndicator();
+  
+  setTimeout(() => {
+    // Yazma göstergesini kaldır
+    typingIndicator.remove();
+    
+    if (selectedPsychologists.length === 0) {
+      addMessage("Lütfen yorumlamada kullanmak için en az bir psikolog seçin. Psikologları seçmek için 'Psikologları Seç' düğmesine tıklayın.", 'assistant');
+    } else {
+      // Her psikolog için ayrı bir mesaj baloncuğu ekle
+      addMessage("Rüyanızı analiz ettim. Seçtiğiniz psikologların yorumları:", 'assistant');
+      
+      // Her bir psikoloğun yanıtını ayrı baloncuklar halinde ekle
+      setTimeout(() => {
+        selectedPsychologists.forEach((psychId, index) => {
+          setTimeout(() => {
+            const psych = psychologists.find(p => p.id === psychId);
+            const interpretation = getPsychologistInterpretation(userText, psych);
+            
+            // Psikoloğun adı ve uzmanlığı ile beraber yorumu ekle
+            addMessage(`${psych.name} (${psych.specialty}): ${interpretation}`, 'assistant');
+            
+            // Son psikologdan sonra kapanış mesajı
+            if (index === selectedPsychologists.length - 1) {
+              setTimeout(() => {
+                addMessage("Başka rüyalarınızı da paylaşabilirsiniz.", 'assistant');
+              }, 500);
+            }
+          }, index * 1000); // Her psikoloğun mesajı arasında zaman farkı
+        });
+      }, 500);
+    }
+  }, 2000);
+}
+    
+    // Psikolog yorumu oluşturma (simülasyon)
+    function getPsychologistInterpretation(dreamText, psychologist) {
+      // Bu fonksiyon normalde bir API'ye bağlanıp gerçek yanıtlar alabilir
+      // Şimdilik basit simülasyonlar yapıyoruz
+      
+      switch (psychologist.id) {
+        case 'freud':
+          return "Bu rüya, muhtemelen bastırılmış bilinçaltı arzularınızın bir yansıması. Rüyanızda görülen semboller cinsel ve agresif dürtülerinizi temsil ediyor olabilir.";
+        
+        case 'jung':
+          return "Rüyanızda görülen arketipler kolektif bilinçdışının bir parçası. Bu semboller, kişisel gelişim yolculuğunuzda önemli bir aşamayı temsil ediyor olabilir.";
+        
+        case 'adler':
+          return "Bu rüya, yaşamınızdaki aşağılık duygularıyla ve üstünlük çabalarınızla ilgili gibi görünüyor. Sosyal ilişkilerinizde nasıl konumlandığınızı düşünmenizi öneririm.";
+        
+        case 'fromm':
+          return "Rüyanız modern toplumda yaşamanın getirdiği yabancılaşma ve bağlantı kurma ihtiyacınızı yansıtıyor. İnsan ilişkilerinizdeki otantiklik arayışınızın bir ifadesi.";
+        
+        case 'lacan':
+          return "Bu rüya, dilin yapısı içinde bilinçdışınızın nasıl çalıştığını gösteriyor. Semboller arasındaki ilişki, özne olarak kendinizi nasıl konumlandırdığınızla ilgili ipuçları veriyor.";
+      }
+    }
+
+    // Gönder butonu tıklama
+    sendBtn.addEventListener('click', () => {
+      const text = promptInput.value.trim();
+      if (text === "") return;
+      addMessage(text, 'user');
+      promptInput.value = "";
+      simulateAssistantResponse(text);
+    });
+
+    // Enter ile gönderme (shift+enter için yeni satır)
+    promptInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendBtn.click();
+      }
+    });
+    
+    // Textarea yüksekliğini otomatik ayarlama
+    promptInput.addEventListener('input', function() {
+      this.style.height = 'auto';
+      this.style.height = (this.scrollHeight < 120) ? this.scrollHeight + 'px' : '120px';
+    });
+    
+    // Sayfayı başlatma
+    initPsychologists();
+  </script>
+</body>
+</html>
