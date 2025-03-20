@@ -174,6 +174,7 @@
     .input-controls {
       display: flex;
       gap: 10px;
+      margin-top: 10px;
     }
     
     .input-area textarea {
@@ -299,14 +300,74 @@
       animation: pulse 1s infinite 0.4s;
     }
     
+    /* Mobil optimizasyon için ek medya sorguları */
     @media (max-width: 768px) {
+      header {
+        font-size: 1.2em;
+        padding: 14px 15px;
+      }
+      
       .chat-container {
         width: 95%;
         margin: 10px auto;
       }
       
+      .chat-log {
+        padding: 15px;
+      }
+      
       .bubble {
         max-width: 85%;
+        font-size: 0.95em;
+      }
+      
+      .psychologist-option {
+        margin: 0 5px;
+        padding: 8px;
+        min-width: 80px;
+      }
+      
+      .psychologist-avatar {
+        width: 50px;
+        height: 50px;
+        font-size: 20px;
+      }
+      
+      .psychologist-name {
+        font-size: 0.75em;
+      }
+      
+      .psychologist-specialty {
+        font-size: 0.6em;
+      }
+      
+      .input-area {
+        padding: 10px;
+      }
+      
+      .input-area textarea, 
+      .input-area button {
+        font-size: 0.9em;
+      }
+      
+      .toggle-btn {
+        font-size: 0.75em;
+        padding: 6px 10px;
+      }
+    }
+    
+    /* Daha küçük cihazlar için (örn. 480px altı) */
+    @media (max-width: 480px) {
+      header {
+        font-size: 1em;
+      }
+      
+      .bubble {
+        font-size: 0.9em;
+      }
+      
+      .input-area textarea {
+        padding: 10px;
       }
     }
   </style>
@@ -342,6 +403,7 @@
   </div>
   
   <script>
+    // JavaScript kodlarınız (aynı kalabilir)
     const chatLog = document.getElementById('chatLog');
     const promptInput = document.getElementById('promptInput');
     const sendBtn = document.getElementById('sendBtn');
@@ -384,11 +446,9 @@
     // Psikolog seçimini değiştirme
     function togglePsychologistSelection(id, element) {
       if (selectedPsychologists.includes(id)) {
-        // Seçimi kaldır
         selectedPsychologists = selectedPsychologists.filter(psychId => psychId !== id);
         element.classList.remove('selected');
       } else {
-        // Seç
         selectedPsychologists.push(id);
         element.classList.add('selected');
       }
@@ -404,7 +464,7 @@
         togglePsychologists.textContent = 'Gizle';
       }
     });
-
+    
     // Mesaj ekleme fonksiyonu
     function addMessage(text, sender = 'user') {
       const messageEl = document.createElement('div');
@@ -436,68 +496,54 @@
       chatLog.scrollTop = chatLog.scrollHeight;
       return typingEl;
     }
-
-// Simüle edilmiş asistan yanıtı (gerçek API entegrasyonu eklenebilir)
-function simulateAssistantResponse(userText) {
-  const typingIndicator = showTypingIndicator();
-  
-  setTimeout(() => {
-    // Yazma göstergesini kaldır
-    typingIndicator.remove();
     
-    if (selectedPsychologists.length === 0) {
-      addMessage("Lütfen yorumlamada kullanmak için en az bir psikolog seçin. Psikologları seçmek için 'Psikologları Seç' düğmesine tıklayın.", 'assistant');
-    } else {
-      // Her psikolog için ayrı bir mesaj baloncuğu ekle
-      addMessage("Rüyanızı analiz ettim. Seçtiğiniz psikologların yorumları:", 'assistant');
+    // Simüle edilmiş asistan yanıtı
+    function simulateAssistantResponse(userText) {
+      const typingIndicator = showTypingIndicator();
       
-      // Her bir psikoloğun yanıtını ayrı baloncuklar halinde ekle
       setTimeout(() => {
-        selectedPsychologists.forEach((psychId, index) => {
+        typingIndicator.remove();
+        
+        if (selectedPsychologists.length === 0) {
+          addMessage("Lütfen yorumlamada kullanmak için en az bir psikolog seçin. Psikologları seçmek için 'Psikologları Seç' düğmesine tıklayın.", 'assistant');
+        } else {
+          addMessage("Rüyanızı analiz ettim. Seçtiğiniz psikologların yorumları:", 'assistant');
+          
           setTimeout(() => {
-            const psych = psychologists.find(p => p.id === psychId);
-            const interpretation = getPsychologistInterpretation(userText, psych);
-            
-            // Psikoloğun adı ve uzmanlığı ile beraber yorumu ekle
-            addMessage(`${psych.name} (${psych.specialty}): ${interpretation}`, 'assistant');
-            
-            // Son psikologdan sonra kapanış mesajı
-            if (index === selectedPsychologists.length - 1) {
+            selectedPsychologists.forEach((psychId, index) => {
               setTimeout(() => {
-                addMessage("Başka rüyalarınızı da paylaşabilirsiniz.", 'assistant');
-              }, 500);
-            }
-          }, index * 1000); // Her psikoloğun mesajı arasında zaman farkı
-        });
-      }, 500);
+                const psych = psychologists.find(p => p.id === psychId);
+                const interpretation = getPsychologistInterpretation(userText, psych);
+                addMessage(`${psych.name} (${psych.specialty}): ${interpretation}`, 'assistant');
+                
+                if (index === selectedPsychologists.length - 1) {
+                  setTimeout(() => {
+                    addMessage("Başka rüyalarınızı da paylaşabilirsiniz.", 'assistant');
+                  }, 500);
+                }
+              }, index * 1000);
+            });
+          }, 500);
+        }
+      }, 2000);
     }
-  }, 2000);
-}
     
     // Psikolog yorumu oluşturma (simülasyon)
     function getPsychologistInterpretation(dreamText, psychologist) {
-      // Bu fonksiyon normalde bir API'ye bağlanıp gerçek yanıtlar alabilir
-      // Şimdilik basit simülasyonlar yapıyoruz
-      
       switch (psychologist.id) {
         case 'freud':
           return "Bu rüya, muhtemelen bastırılmış bilinçaltı arzularınızın bir yansıması. Rüyanızda görülen semboller cinsel ve agresif dürtülerinizi temsil ediyor olabilir.";
-        
         case 'jung':
           return "Rüyanızda görülen arketipler kolektif bilinçdışının bir parçası. Bu semboller, kişisel gelişim yolculuğunuzda önemli bir aşamayı temsil ediyor olabilir.";
-        
         case 'adler':
           return "Bu rüya, yaşamınızdaki aşağılık duygularıyla ve üstünlük çabalarınızla ilgili gibi görünüyor. Sosyal ilişkilerinizde nasıl konumlandığınızı düşünmenizi öneririm.";
-        
         case 'fromm':
           return "Rüyanız modern toplumda yaşamanın getirdiği yabancılaşma ve bağlantı kurma ihtiyacınızı yansıtıyor. İnsan ilişkilerinizdeki otantiklik arayışınızın bir ifadesi.";
-        
         case 'lacan':
           return "Bu rüya, dilin yapısı içinde bilinçdışınızın nasıl çalıştığını gösteriyor. Semboller arasındaki ilişki, özne olarak kendinizi nasıl konumlandırdığınızla ilgili ipuçları veriyor.";
       }
     }
-
-    // Gönder butonu tıklama
+    
     sendBtn.addEventListener('click', () => {
       const text = promptInput.value.trim();
       if (text === "") return;
@@ -505,8 +551,7 @@ function simulateAssistantResponse(userText) {
       promptInput.value = "";
       simulateAssistantResponse(text);
     });
-
-    // Enter ile gönderme (shift+enter için yeni satır)
+    
     promptInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
@@ -514,13 +559,11 @@ function simulateAssistantResponse(userText) {
       }
     });
     
-    // Textarea yüksekliğini otomatik ayarlama
     promptInput.addEventListener('input', function() {
       this.style.height = 'auto';
       this.style.height = (this.scrollHeight < 120) ? this.scrollHeight + 'px' : '120px';
     });
     
-    // Sayfayı başlatma
     initPsychologists();
   </script>
 </body>
